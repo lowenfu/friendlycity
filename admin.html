@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>友善營業場所 - 後台管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #11998e;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #11998e;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #0e7d72;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 0.9em;
+            margin: 0 3px;
+        }
+        
+        .search-bar {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .search-bar input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        
+        thead {
+            background: #11998e;
+            color: white;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            font-weight: bold;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        th:hover {
+            background: #0e7d72;
+        }
+        
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .pagination button {
+            padding: 8px 15px;
+            border: 2px solid #11998e;
+            background: white;
+            color: #11998e;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.95em;
+        }
+        
+        .pagination button:hover:not(:disabled) {
+            background: #11998e;
+            color: white;
+        }
+        
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .pagination button.active {
+            background: #11998e;
+            color: white;
+        }
+        
+        /* Modal 樣式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal.active {
+            display: block;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 700px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-header h2 {
+            color: #11998e;
+        }
+        
+        .close {
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .close:hover {
+            color: #333;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            font-family: inherit;
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        .status-message {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .status-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+        
+        .status-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #11998e;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← 返回前台</a>
+        
+        <h1>📝 後台管理系統</h1>
+        
+        <div id="statusMessage" class="status-message"></div>
+        
+        <div class="header">
+            <button class="btn btn-primary" onclick="openAddModal()">➕ 新增場所</button>
+            <div>
+                <span style="color: #666;">總共 <strong id="totalCount">0</strong> 筆資料</span>
+            </div>
+        </div>
+        
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="🔍 搜尋場所名稱、地址、區域..." oninput="searchData()">
+        </div>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th onclick="sortTable('名稱')">名稱 ↕</th>
+                        <th onclick="sortTable('分類')">分類 ↕</th>
+                        <th onclick="sortTable('年度')">年度 ↕</th>
+                        <th onclick="sortTable('區域')">區域 ↕</th>
+                        <th onclick="sortTable('最後修改時間')">最後修改時間 ↕</th>
+                        <th style="width: 150px;">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="dataTable"></tbody>
+            </table>
+        </div>
+        
+        <div class="pagination" id="pagination"></div>
+    </div>
+    
+    <!-- 新增/編輯 Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">新增場所</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            
+            <form id="editForm">
+                <input type="hidden" id="editId">
+                
+                <div class="form-group">
+                    <label for="editName">名稱 *</label>
+                    <input type="text" id="editName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editCategory">分類 *</label>
+                    <select id="editCategory" required>
+                        <option value="">請選擇</option>
+                        <option value="餐飲">餐飲</option>
+                        <option value="診所">診所</option>
+                        <option value="藥局">藥局</option>
+                        <option value="一般商店">一般商店</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editYear">年度 *</label>
+                    <input type="text" id="editYear" placeholder="例：113" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editPhone">電話</label>
+                    <input type="text" id="editPhone">
+                </div>
+                
+                <div class="form-group">
+                    <label for="editAddress">地址 *</label>
+                    <input type="text" id="editAddress" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editArea">區域 *</label>
+                    <input type="text" id="editArea" placeholder="例：左營區" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editWebsite">網址連結</label>
+                    <input type="url" id="editWebsite" placeholder="https://">
+                </div>
+                
+                <div class="form-group">
+                    <label for="editFeatures">友善特色</label>
+                    <textarea id="editFeatures" placeholder="例如：&#10;1.無障礙入口&#10;2.無障礙廁所"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editImage">圖片網址</label>
+                    <input type="url" id="editImage" placeholder="https://cdn.example.com/image.jpg">
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">取消</button>
+                    <button type="submit" class="btn btn-success">儲存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 使用 HTTPS API endpoint
+        const API_URL = 'https://your-api-server.com/api';
+        
+        let allData = [];
+        let filteredData = [];
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        let sortColumn = '最後修改時間';
+        let sortAscending = false;
+        
+        // 載入資料
+        async function loadData() {
+            try {
+                const response = await fetch(`${API_URL}/places`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('載入資料失敗');
+                }
+                
+                allData = await response.json();
+            } catch (error) {
+                console.error('載入資料失敗:', error);
+                // 使用範例資料作為備援
+                allData = [
+                    {"id": 1, "名稱":"全家牛排館","年度":"103","分類":"餐飲","電話":"076222344","地址":"高雄市岡山區大德一路26號","區域":"岡山區","網址連結":"","友善特色":"1.無障礙入口\n2.無障礙廁所","圖片":"","最後修改時間":"2025-02-01T10:30:00"},
+                    {"id": 2, "名稱":"人从众厚切牛排- 鳳山文濱店","年度":"112","分類":"餐飲","電話":"07 7775718","地址":"高雄市鳳山區文濱路130號","區域":"鳳山區","網址連結":"","友善特色":"1.無障礙入口\n2.無障礙廁所","圖片":"","最後修改時間":"2025-01-02T14:20:00"},
+                    {"id": 3, "名稱":"泮咖啡","年度":"113","分類":"餐飲","電話":"07 585 6868","地址":"高雄市左營區蓮潭路176號","區域":"左營區","網址連結":"","友善特色":"1..大門為前後推拉門，常保開啟狀態\n2.出入口有兩格階梯，大門左側設有斜坡道，坡道長度約4公尺，坡度約15~25度輪椅使用者不需有人協助\n3.商家歡迎導盲犬進入\n4.主要通道輪椅使用者可雙向通行\n5.桌下有足夠容膝空間，且椅子有靠背，輪椅使用者可自行調整至方便用餐空間\n6.商家有設置友善充電座、友善優先席及兒童座椅，供行動不便者跟兒童使用","圖片":"","最後修改時間":"2025-01-03T09:15:00"}
+                ];
+            }
+            
+            filteredData = [...allData];
+            sortData();
+            renderTable();
+        }
+        
+        // 搜尋
+        function searchData() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            if (searchTerm === '') {
+                filteredData = [...allData];
+            } else {
+                filteredData = allData.filter(item => {
+                    return item.名稱.toLowerCase().includes(searchTerm) ||
+                           item.地址.toLowerCase().includes(searchTerm) ||
+                           item.區域.toLowerCase().includes(searchTerm);
+                });
+            }
+            
+            currentPage = 1;
+            sortData();
+            renderTable();
+        }
+        
+        // 排序
+        function sortTable(column) {
+            if (sortColumn === column) {
+                sortAscending = !sortAscending;
+            } else {
+                sortColumn = column;
+                sortAscending = true;
+            }
+            
+            sortData();
+            renderTable();
+        }
+        
+        function sortData() {
+            filteredData.sort((a, b) => {
+                let aVal = a[sortColumn];
+                let bVal = b[sortColumn];
+                
+                // 處理日期
+                if (sortColumn === '最後修改時間') {
+                    aVal = new Date(aVal);
+                    bVal = new Date(bVal);
+                }
+                
+                if (aVal < bVal) return sortAscending ? -1 : 1;
+                if (aVal > bVal) return sortAscending ? 1 : -1;
+                return 0;
+            });
+        }
+        
+        // 渲染表格
+        function renderTable() {
+            const tbody = document.getElementById('dataTable');
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageData = filteredData.slice(startIndex, endIndex);
+            
+            document.getElementById('totalCount').textContent = filteredData.length;
+            
+            if (pageData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999; padding: 40px;">沒有資料</td></tr>';
+            } else {
+                tbody.innerHTML = pageData.map(item => {
+                    const lastModified = new Date(item.最後修改時間).toLocaleString('zh-TW');
+                    return `
+                        <tr>
+                            <td>${item.名稱}</td>
+                            <td>${item.分類}</td>
+                            <td>${item.年度}</td>
+                            <td>${item.區域}</td>
+                            <td>${lastModified}</td>
+                            <td>
+                                <button class="btn btn-primary btn-small" onclick="openEditModal(${item.id})">編輯</button>
+                                <button class="btn btn-danger btn-small" onclick="deleteItem(${item.id})">刪除</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+            
+            renderPagination();
+        }
+        
+        // 渲染分頁
+        function renderPagination() {
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            const pagination = document.getElementById('pagination');
+            
+            if (totalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+            
+            let html = '';
+            html += `<button ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">上一頁</button>`;
+            
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    html += `<button class="${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    html += `<span>...</span>`;
+                }
+            }
+            
+            html += `<button ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">下一頁</button>`;
+            
+            pagination.innerHTML = html;
+        }
+        
+        function changePage(page) {
+            currentPage = page;
+            renderTable();
+        }
+        
+        // 開啟新增 Modal
+        function openAddModal() {
+            document.getElementById('modalTitle').textContent = '新增場所';
+            document.getElementById('editForm').reset();
+            document.getElementById('editId').value = '';
+            document.getElementById('editModal').classList.add('active');
+        }
+        
+        // 開啟編輯 Modal
+        function openEditModal(id) {
+            const item = allData.find(i => i.id === id);
+            if (!item) return;
+            
+            document.getElementById('modalTitle').textContent = '編輯場所';
+            document.getElementById('editId').value = item.id;
+            document.getElementById('editName').value = item.名稱;
+            document.getElementById('editCategory').value = item.分類;
+            document.getElementById('editYear').value = item.年度;
+            document.getElementById('editPhone').value = item.電話 || '';
+            document.getElementById('editAddress').value = item.地址;
+            document.getElementById('editArea').value = item.區域;
+            document.getElementById('editWebsite').value = item.網址連結 || '';
+            document.getElementById('editFeatures').value = item.友善特色 || '';
+            document.getElementById('editImage').value = item.圖片 || '';
+            
+            document.getElementById('editModal').classList.add('active');
+        }
+        
+        // 關閉 Modal
+        function closeModal() {
+            document.getElementById('editModal').classList.remove('active');
+        }
+        
+        // 表單提交
+        document.getElementById('editForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('editId').value;
+            const data = {
+                名稱: document.getElementById('editName').value,
+                分類: document.getElementById('editCategory').value,
+                年度: document.getElementById('editYear').value,
+                電話: document.getElementById('editPhone').value,
+                地址: document.getElementById('editAddress').value,
+                區域: document.getElementById('editArea').value,
+                網址連結: document.getElementById('editWebsite').value,
+                友善特色: document.getElementById('editFeatures').value,
+                圖片: document.getElementById('editImage').value,
+                最後修改時間: new Date().toISOString()
+            };
+            
+            try {
+                let response;
+                if (id) {
+                    // 更新
+                    data.id = parseInt(id);
+                    response = await fetch(`${API_URL}/places/${id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+                } else {
+                    // 新增
+                    response = await fetch(`${API_URL}/places`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+                }
+                
+                if (!response.ok) {
+                    throw new Error('儲存失敗');
+                }
+                
+                showMessage('儲存成功！', 'success');
+                closeModal();
+                loadData();
+            } catch (error) {
+                console.error('儲存失敗:', error);
+                showMessage('儲存失敗：' + error.message, 'error');
+            }
+        });
+        
+        // 刪除
+        async function deleteItem(id) {
+            if (!confirm('確定要刪除這筆資料嗎？')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/places/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('刪除失敗');
+                }
+                
+                showMessage('刪除成功！', 'success');
+                loadData();
+            } catch (error) {
+                console.error('刪除失敗:', error);
+                showMessage('刪除失敗：' + error.message, 'error');
+            }
+        }
+        
+        // 顯示訊息
+        function showMessage(message, type) {
+            const msgElement = document.getElementById('statusMessage');
+            msgElement.textContent = message;
+            msgElement.className = `status-message ${type}`;
+            
+            setTimeout(() => {
+                msgElement.className = 'status-message';
+            }, 3000);
+        }
+        
+        // 點擊 Modal 外部關閉
+        window.onclick = function(event) {
+            const modal = document.getElementById('editModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+        
+        // 初始化
+        loadData();
+    </script>
+</body>
+</html>

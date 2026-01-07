@@ -1,0 +1,82 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>房屋地圖 API 動態載入</title>
+    <style>
+        #map { height: 500px; width: 100%; }
+    </style>
+</head>
+<body>
+    <h3>房屋地圖（API 動態載入）</h3>
+    <div id="map"></div>
+
+    <script>
+        let map;
+        let infoWindow;
+        let markers = [];
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 13,
+                center: { lat: 25.033964, lng: 121.564468 }
+            });
+
+            infoWindow = new google.maps.InfoWindow();
+
+            // 初次載入資料
+            loadHouses();
+
+            // 當地圖拖曳或縮放後重新載入資料
+            map.addListener("idle", () => {
+                loadHouses();
+            });
+        }
+
+        function loadHouses() {
+            // 清除舊標記
+            markers.forEach(marker => marker.setMap(null));
+            markers = [];
+
+            // 模擬 API URL，可替換成你的後端 API
+            const apiUrl = "https://example.com/api/houses";
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(house => {
+                        const marker = new google.maps.Marker({
+                            position: { lat: house.lat, lng: house.lng },
+                            map: map,
+                            icon: {
+                                url: "https://cdn-icons-png.flaticon.com/512/69/69524.png",
+                                scaledSize: new google.maps.Size(32, 32)
+                            },
+                            title: house.title
+                        });
+
+                        marker.addListener("click", () => {
+                            infoWindow.setContent(`
+                                <h4>${house.title}</h4>
+                                <p>價格：${house.price}</p>
+                                https://via.placeholder.com/150
+                            `);
+                            infoWindow.open(map, marker);
+                        });
+
+                        markers.push(marker);
+                    });
+                })
+                .catch(error => console.error("載入房屋資料失敗：", error));
+        }
+    </script>
+
+    
+<!-- 載入 Google Maps API，替換 YOUR_API_KEY -->    
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap">
+    </script>
+
+
+</body>
+</html>
